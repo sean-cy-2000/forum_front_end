@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章詳情</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css">
+    <script src="./side.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 側邊欄會由 JS 動態插入 -->
+        <div class="main-content">
+            <div class="post-detail" id="postDetail">
+                <div class="post-header">
+                    <h1 id="postTitle"></h1>
+                    <div class="post-info">
+                        <div class="post-info-left">
+                            <span id="postAuthor"></span>
+                            <button class="interaction-btn" id="likeBtn" onclick="handleLike()">
+                                <i class="fa-regular fa-thumbs-up"></i>
+                                <span id="likesCount">0</span>
+                            </button>
+                            <button class="interaction-btn" id="collectBtn" onclick="handleCollect()">
+                                <i class="fa-regular fa-bookmark"></i>
+                                <span id="collectsCount">0</span>
+                            </button>
+                            <button class="interaction-btn" id="commentBtn" onclick="scrollToComments()">
+                                <i class="fa-regular fa-comment-dots"></i>
+                                <span id="commentsCount">0</span>
+                            </button>
+                        </div>
+                        <span id="postDate"></span>
+                    </div>
+                    <div class="post-tags" id="postTags"></div>
+                </div>
+                <div class="post-content" id="postContent"></div>
+            </div>
+            <div class="comments-section">
+                <div class="comments-header">
+                    <h2>留言區</h2>
+                </div>
+                <div class="comment-form">
+                    <button onclick="checkLoginAndComment('post', currentPostId)">發布留言</button>
+                </div>
+                <div class="comments-list" id="commentsList">
+                    <!-- 留言會在這裡動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const api = axios.create({
+            baseURL: 'http://localhost:3000'
+        });
+
+        let currentPostId = '';
+        let isLoggedIn = false;
+
+        async function getPostDetail() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                currentPostId = urlParams.get('id');
+
+                if (!currentPostId) {
+                    alert('文章ID不存在');
+                    window.location.href = './home.html';
+                    return;
+                }
+
+                // 如果已登入，使用帶有 token 的請求來獲取文章狀態
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const response = await api.get(`/post/getPostInfo/${currentPostId}`, { headers });
+                const post = response.data.post;
+
+                document.getElementById('postTitle').textContent = post.title;
+                document.getElementById('postAuthor').textContent = `作者: ${post.postOwnerAccount}`;
+                document.getElementById('postDate').textContent = `發表時間: ${dayjs(post.createdAt).format('YYYY-MM-DD HH:mm:ss')}`;
+                document.getElementById('likesCount').textContent = post.likersCount;
+                document.getElementById('collectsCount').textContent = post.collectorsCount;
+                document.getElementById('commentsCount').textContent = post.commentsCount;
+                document.getElementById('postContent').textContent = post.content;
+
+                // 如果已登入，直接從 post 數據中設置互動狀態
+                if (isLoggedIn) {
+                    if (post.isLiked) {
+                        document.getElementById('likeBtn').classList.add('active');
+                        document.querySelector('#likeBtn i').classList.replace('fa-regular', 'fa-solid');
+                    }
+                    if (post.isCollected) {
+                        document.getElementById('collectBtn').classList.add('active');
+                        document.querySelector('#collectBtn i').classList.replace('fa-regular', 'fa-solid');
+                    }
+                }
+
+                const tagsContainer = document.getElementById('postTags');
+                tagsContainer.innerHTML = '';
+                if (post.tags && post.tags.length > 0) {
+                    post.tags.forEach(tag => {
+                        const tagSpan = document.createElement('span');
+                        tagSpan.className = 'tag';
+                        tagSpan.textContent = `#${tag}`;
+                        tagsContainer.appendChild(tagSpan);
+                    });
+                }
+            } catch (error) {
+                console.error('獲取文章詳情失敗:', error);
+                alert('獲取文章詳情失敗');
+            }
+        }
+        function checkLoginAndComment(idType, id) {
+            if (!isLoggedIn) {
+                if (confirm('需要登入才能發布留言，是否前往登入？')) {
+                    window.location.href = './login.html';
+                }
+                return;
+            }
+            openCommentWindow(idType, id);
+        }
+
+        function openCommentWindow(idType, id) {
+            const width = 500;
+            const height = 300;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+
+            let url;
+            if (idType === 'post') {
+                url = `addComment.html?postId=${id}&parentCommentId=0`;
+            } else if (idType === 'comment') {
+                url = `addComment.html?postId=${currentPostId}&parentCommentId=${id}`;
+            }
+
+            window.open(
+                url,
+                'commentWindow',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+        }
+
+        async function handleLike() {
+            if (!isLoggedIn) {
+                if (confirm('需要登入才能點贊，是否前往登入？')) {
+                    window.location.href = './login.html';
+                }
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await api.post(`/post/addLike/post/${currentPostId}`, {}, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const likeBtn = document.getElementById('likeBtn');
+                const likeIcon = likeBtn.querySelector('i');
+                const likesCount = document.getElementById('likesCount');
+
+                if (likeBtn.classList.contains('active')) {
+                    likeBtn.classList.remove('active');
+                    likeIcon.classList.replace('fa-solid', 'fa-regular');
+                    likesCount.textContent = parseInt(likesCount.textContent) - 1;
+                } else {
+                    likeBtn.classList.add('active');
+                    likeIcon.classList.replace('fa-regular', 'fa-solid');
+                    likesCount.textContent = parseInt(likesCount.textContent) + 1;
+                }
+            } catch (error) {
+                console.error('點贊失敗:', error);
+                alert('點贊失敗');
+            }
+        }
+
+        async function handleCollect() {
+            if (!isLoggedIn) {
+                if (confirm('需要登入才能收藏，是否前往登入？')) {
+                    window.location.href = './login.html';
+                }
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await api.post(`/post/addCollect/${currentPostId}`, {}, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const collectBtn = document.getElementById('collectBtn');
+                const collectIcon = collectBtn.querySelector('i');
+                const collectsCount = document.getElementById('collectsCount');
+
+                if (response.data.message === "取消收藏") {
+                    collectBtn.classList.remove('active');
+                    collectIcon.classList.replace('fa-solid', 'fa-regular');
+                    collectsCount.textContent = parseInt(collectsCount.textContent) - 1;
+                } else if (response.data.message === "收藏成功") {
+                    collectBtn.classList.add('active');
+                    collectIcon.classList.replace('fa-regular', 'fa-solid');
+                    collectsCount.textContent = parseInt(collectsCount.textContent) + 1;
+                }
+            } catch (error) {
+                console.error('收藏操作失敗:', error);
+                alert('收藏操作失敗');
+            }
+        }
+        async function getLevel0Comments() {
+            try {
+                const response = await api.get(`/post/getLevel_0_Comments/${currentPostId}`);
+                const comments = response.data.comments;
+                const commentsList = document.getElementById('commentsList');
+
+                // 檢查每個評論是否有子評論
+                for (const comment of comments) {
+                    try {
+                        const childrenResponse = await api.get(`/post/getChildrenComments/${comment.id}`);
+                        comment.hasChildren = childrenResponse.data.descendants.length > 0;
+                        comment.childrenCount = childrenResponse.data.descendants.length;
+                    } catch (error) {
+                        console.error('獲取子留言數量失敗:', error);
+                        comment.hasChildren = false;
+                        comment.childrenCount = 0;
+                    }
+                }
+
+                commentsList.innerHTML = comments.map(comment => createCommentHTML(comment, 0)).join('');
+            } catch (error) {
+                console.error('獲取留言失敗:', error);
+                document.getElementById('commentsList').innerHTML = '<p>獲取留言失敗</p>';
+            }
+        }
+
+        function createCommentHTML(comment, level) {
+            const marginLeft = 20;
+            const commentId = comment.id || comment._id;
+            const commenterAccount = comment.commenterAccount || (comment.commenterId && comment.commenterId.account);
+            const hasChildren = comment.hasChildren || (comment.childrenId && comment.childrenId.length > 0);
+            const childrenCount = comment.childrenCount || (comment.childrenId ? comment.childrenId.length : 0);
+
+            return `
+                <div class="comment-item" id="comment-${commentId}" style="margin-left: ${marginLeft}px">
+                    <div class="comment-header">
+                        <span>${commenterAccount}</span>
+                        <span>${dayjs(comment.editAt || comment.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
+                    </div>
+                    <div class="comment-content">
+                        ${comment.content}
+                    </div>
+                    <div class="comment-footer">
+                        ${hasChildren ? `
+                            <button class="interaction-btn" onclick="toggleChildren('${commentId}')">
+                                <i class="fa-regular fa-comment-dots"></i>
+                                <span>${childrenCount}</span>
+                            </button>
+                        ` : ''}
+                        ${level < 3 ? `
+                            <button onclick="checkLoginAndComment('comment', '${commentId}')">回覆</button>
+                        ` : ''}
+                    </div>
+                    <div class="nested-comments" id="children-${commentId}">
+                    </div>
+                </div>
+            `;
+        }
+
+        async function toggleChildren(commentId) {
+            const childrenContainer = document.getElementById(`children-${commentId}`);
+            const isLoaded = childrenContainer.classList.contains('active');
+
+            if (isLoaded) {
+                childrenContainer.classList.remove('active');
+            } else {
+                try {
+                    const response = await api.get(`/post/getChildrenComments/${commentId}`);
+                    const children = response.data.descendants;
+                    if (children && children.length > 0) {
+                        const parentLevel = parseInt(document.getElementById(`comment-${commentId}`).style.marginLeft) / 20;
+                        const nextLevel = parentLevel + 1;
+
+                        childrenContainer.innerHTML = children.map(child =>
+                            createCommentHTML(child, nextLevel)
+                        ).join('');
+                    }
+                    childrenContainer.classList.add('active');
+                } catch (error) {
+                    console.error('獲取子留言失敗:', error);
+                    childrenContainer.innerHTML = '<p>獲取子留言失敗</p>';
+                }
+            }
+        }
+
+        function scrollToComments() {
+            document.querySelector('.comments-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        window.onload = async () => {
+            // 插入側邊欄
+            document.querySelector('.container').insertBefore(
+                createSidebar(),
+                document.querySelector('.main-content')
+            );
+
+            // 初始化用戶狀態
+            isLoggedIn = await getUserInfo();
+
+            // 獲取文章詳情和留言
+            await getPostDetail();
+            await getLevel0Comments();
+        };
+    </script>
+</body>
+
+</html>
