@@ -19,8 +19,8 @@
                 <input type="text" class="input-control" id="keywordInput" placeholder="搜索關鍵字">
                 <input type="text" class="input-control" id="tagInput" placeholder="搜索標籤">
                 <select id="direction">
-                    <option value="1">正序</option>
-                    <option value="-1">反序</option>
+                    <option value="-1">正序</option>
+                    <option value="1">反序</option>
                 </select>
                 <select id="sortBy">
                     <option value="createdAt">時間</option>
@@ -49,7 +49,7 @@
 
     <script>
         const api = axios.create({
-            baseURL: 'http://localhost:3000'
+            URL: 'http://localhost:3000'
         });
 
         let currentPage = 1;
@@ -74,7 +74,7 @@
                 const tag = document.getElementById('tagInput').value;
                 const postsCount = await api.get(`/post/getPostsCount/${tag || ''}`);
                 const pageSize = parseInt(document.getElementById('pageSize').value);
-                totalPages = Math.ceil(postsCount.data.count / pageSize);
+                totalPages = Math.ceil(postsCount.data.count / pageSize);   // 無條件進位
                 document.getElementById('totalPageSpan').textContent = totalPages;
                 document.getElementById('currentPageSpan').textContent = currentPage;
             } catch (error) {
@@ -85,12 +85,12 @@
         async function getPosts() {
             try {
                 const sortBy = document.getElementById('sortBy').value;
-                const direction = - parseInt(document.getElementById('direction').value);  // 轉換為 -1 或 1
+                const direction = parseInt(document.getElementById('direction').value);  // 排序方向 -1 或 1
                 const tag = document.getElementById('tagInput').value;
                 const pageSize = parseInt(document.getElementById('pageSize').value);
+                const postArea = document.getElementById('postArea');
 
                 const response = await api.get(`/post/getPosts/${sortBy}/${pageSize}/${currentPage}/${direction}/${tag || ''}`);
-                const postArea = document.getElementById('postArea');
 
                 if (response.data.posts && response.data.posts.length > 0) {
                     postArea.innerHTML = '';
@@ -98,7 +98,7 @@
                         const postElement = document.createElement('div');
                         postElement.className = 'post-item';
                         postElement.dataset.postId = post._id;
-                        postElement.onclick = function () {
+                        postElement.onclick = () => {
                             window.location.href = `./post.html?id=${post._id}`;
                         };
                         postElement.innerHTML = `
@@ -110,7 +110,7 @@
                                    <span><i class="fa-regular fa-bookmark"></i> ${post.collectorsCount}</span>
                                    <span><i class="fa-regular fa-comment-dots"></i> ${post.commentsCount}</span>
                                </div>
-                               <span>發表時間: ${dayjs(post.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
+                               <span>發表時間: ${dayjs(post.createdAt).format('YYYY-MM-DD HH:mm')}</span>
                            </div>
                        `;
                         postArea.appendChild(postElement);

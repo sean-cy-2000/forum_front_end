@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,42 +8,43 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body class="comment-modal">
     <div>
-        <input type="text" id="title" placeholder="請輸入文章標題">
-        <textarea id="content" placeholder="請輸入文章內容"></textarea>
+        <input type="text" id="title" placeholder="文章標題">
+        <textarea id="content" placeholder="文章內容"></textarea>
         <input type="text" id="tags" placeholder="請輸入標籤，用逗號分隔">
-        <button onclick="submitPost()">發布</button>
+        <button onclick="public()">發布</button>
     </div>
 
     <script>
-        const api = axios.create({
-            baseURL: 'http://localhost:3000',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        async function submitPost() {
+        async function public() {
             try {
                 const title = document.getElementById('title').value;
                 const content = document.getElementById('content').value;
                 const tags = document.getElementById('tags').value
                     .split(',')
-                    .map(tag => tag.trim())
-                    .filter(tag => tag); // 過濾空值
+                    .map(tag => tag.trim())     // 去除空白
+                    .filter(tag => tag);        // 去除空字串
 
                 if (!title.trim() || !content.trim()) {
                     alert('標題和內容不能為空');
                     return;
                 }
 
-                const postData = { title, content, tags };
-                const response = await api.post('/post/createPost', postData);
+                const response = await axios.post(
+                    'http://localhost:3000/post/createPost',
+                    { title, content, tags },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
+                );
 
                 if (response.data.message) {
                     alert('發布成功');
-                    window.opener.location.reload();
+                    window.opener.location.reload();  // 重新整理父視窗
                     window.close();
                 }
             } catch (error) {
@@ -51,4 +53,5 @@
         }
     </script>
 </body>
+
 </html>
