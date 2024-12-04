@@ -1,240 +1,123 @@
-/* 基礎佈局 */
+/* 基礎變數設定 */
+:root {
+    --main-color: black;          /* 主要文字顏色 */
+    --secondary-color: lightgray;  /* 次要顏色，用於背景和邊框 */
+    --gap: 10px;                  /* 統一的間距 */
+}
+
+/* 重置和基礎設定 */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    color: var(--main-color);
 }
 
+/* 主要容器布局 */
 .container {
     display: flex;
     min-height: 100vh;
 }
 
+/* 側邊欄設定 */
 .sidebar {
     width: 200px;
-    padding: 20px;
-    border-right: 1px solid #ccc;
+    padding: var(--gap);
+    border-right: 1px solid var(--secondary-color);
 }
 
+/* 主要內容區域 */
 .main-content {
     flex: 1;
-    padding: 20px;
+    padding: var(--gap);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* 通用輸入框樣式 */
-.input-control, 
-input[type="text"], 
-input[type="password"], 
+/* 所有輸入元素的統一樣式 */
+.input-control,
+input[type="text"],
+input[type="password"],
 textarea {
-    padding: 8px;
-    border: 1px solid #dee2e6;
+    padding: var(--gap);
+    border: 1px solid var(--secondary-color);
     border-radius: 4px;
-    box-sizing: border-box;
-    resize: none;
-    width: 300px;
-}
-
-/* 對不同情境的輸入框寬度調整 */
-.search-container .input-control {
-    width: 200px;
-}
-
-textarea {
     width: 100%;
+    box-sizing: border-box;
 }
 
-.login-container input {
-    width: 250px;
-}
-
-/* 通用按鈕樣式 */
-button:not(.interaction-btn):not(.delete-btn) {
-    padding: 8px 16px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+/* 按鈕的統一樣式 */
+button {
+    padding: var(--gap);
+    background-color: var(--secondary-color);
+    border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    color: var(--main-color);
 }
 
-button:not(.interaction-btn):not(.delete-btn):hover {
-    background-color: #e9ecef;
+button:hover {
+    opacity: 0.8;
 }
 
-/* 互動按鈕特殊樣式 */
+/* 文章區域樣式 */
+.post-area {
+    width: 100%;
+    padding: var(--gap);
+    margin-bottom: var(--gap);
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* 互動按鈕樣式 */
 .interaction-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    padding: 5px 10px;
+    padding: var(--gap);
     display: flex;
     align-items: center;
     gap: 5px;
 }
 
-.interaction-btn.active {
-    color: #007bff;
-}
-
-/* 刪除按鈕樣式 */
-.delete-btn {
-    background: none;
-    border: none;
-    color: #dc3545;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.delete-btn:hover {
-    color: #c82333;
-}
-
-/* 圖標顏色 */
-.fa-thumbs-up { color: #4267B2; }
-.fa-bookmark { color: #FFB100; }
-.fa-comment-dots { color: #1DA1F2; }
-
-/* 搜索區域 */
+/* 搜尋區域樣式 */
 .search-container {
-    width: 80%;
-    margin-bottom: 20px;
+    width: 100%;
+    margin-bottom: var(--gap);
     display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
+    gap: var(--gap);
     flex-wrap: wrap;
 }
 
-/* 文章相關區域共用樣式 */
-.post-area, 
-.post-detail, 
-.comments-section {
-    width: 80%;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.post-area {
-    min-height: 500px;
-}
-
-.post-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin: 10px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.post-item .post-title {
-    cursor: pointer;
-    flex: 1;
-}
-
-/* 文章信息樣式 */
-.post-info,
-.post-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    color: #666;
-    margin: 10px 0;
-}
-
-.post-info-left {
-    display: flex;
-    gap: 15px;
-}
-
-.post-content {
-    line-height: 1.6;
-    color: #333;
-    margin-top: 20px;
-    padding: 20px;
-    border-top: 1px solid #eee;
-}
-
-/* 標籤 */
+/* 標籤樣式 */
 .tag {
     display: inline-block;
-    padding: 4px 8px;
-    margin-right: 8px;
-    background-color: #e0e0e0;
+    padding: 5px var(--gap);
+    margin-right: var(--gap);
+    background-color: var(--secondary-color);
     border-radius: 4px;
-    color: #666;
-    font-size: 14px;
 }
 
-/* 分頁 */
+/* 分頁控制區域 */
 .pagination {
-    width: 80%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
+    margin-top: var(--gap);
+    text-align: center;
 }
 
-/* 登入頁面樣式 */
+/* 登入容器樣式 */
 .login-container {
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: var(--gap);
 }
 
-/* 留言區域樣式 */
-.comment-item {
-    border: 1px solid #eee;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 5px;
-}
-
-/* 嵌套留言樣式 */
-.level-0 {
-    margin-left: 0 !important;
-}
-
-.level-1 {
-    margin-left: 20px !important;
-}
-
-.level-2 {
-    margin-left: 40px !important;
-}
-
-.level-3 {
-    margin-left: 60px !important;
-}
-
-.comment-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    color: #666;
-}
-
-.comment-content {
-    margin: 10px 0;
-}
-
-.comment-footer {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
+/* 留言系統樣式 */
 .nested-comments {
+    margin-left: 20px;
     display: none;
 }
 
@@ -242,20 +125,15 @@ button:not(.interaction-btn):not(.delete-btn):hover {
     display: block;
 }
 
-/* 新增貼文/留言共用樣式 */
-.comment-modal {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    gap: 15px;
-}
-
-.comment-modal textarea {
-    height: 200px;
-    width: 100%;
-}
-
-.comment-modal input[type="text"] {
-    margin-bottom: 10px;
-    width: 100%;
+/* 小螢幕裝置的響應式設計 */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--secondary-color);
+    }
 }

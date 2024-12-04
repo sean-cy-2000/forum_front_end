@@ -20,7 +20,7 @@
         <!-- 主要內容區 -->
         <div class="main-content">
             <!-- 文章區塊：使用最簡化的結構 -->
-            <div class="post">
+            <div class="post-area">
                 <h1></h1>
                 <div class="info">
                     <span class="author"></span>
@@ -43,7 +43,7 @@
             </div>
 
             <!-- 留言區 -->
-            <div class="comments-section">
+            <div class="post-area">
                 <h2>留言區</h2>
                 <button id="addCommentBtn">發布留言</button>
                 <div class="comments-list"></div>
@@ -106,7 +106,8 @@
 
         // 更新文章內容到頁面
         function updatePostContent(post) {
-            const $post = $('.post');
+            // 使用正確的選擇器 .post-area，並選擇第一個元素（文章區塊）
+            const $post = $('.post-area').first();
             $post.find('h1').text(post.title);
             $post.find('.author').text(`作者: ${post.postOwnerAccount}`);
             $post.find('.date').text(`發表時間: ${dayjs(post.createdAt).format('YYYY-MM-DD HH:mm')}`);
@@ -135,7 +136,6 @@
                 $tags.append($('<span>').addClass('tag').text(`#${tag}`));
             });
         }
-
         // 處理點讚功能
         async function handleLike() {
             if (!checkLogin()) return;
