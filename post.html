@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="./style.css">
     <script src="./side.js"></script>
 </head>
+<style>
+    em {
+        margin-left: 20px
+    }
+</style>
 
 <body>
     <!-- 整體容器 -->
@@ -38,8 +43,8 @@
                     </button>
                     <span class="date"></span>
                 </div>
-                <div class="tags"></div>
-                <div class="content"></div>
+                <div class="tags"></div><br>
+                <em class="content"></em><br><br>
             </div>
 
             <!-- 留言區 -->
@@ -190,61 +195,19 @@
                 const response = await api.get(`/post/getLevel_0_Comments/${currentPostId}`);
                 const comments = response.data.comments;
 
-                // 檢查每個留言的子留言數量
-                for (const comment of comments) {
-                    try {
-                        const childrenResponse = await api.get(`/post/getChildrenComments/${comment.id}`);
-                        comment.hasChildren = childrenResponse.data.descendants.length > 0;
-                        comment.childrenCount = childrenResponse.data.descendants.length;
-                    } catch (error) {
-                        comment.hasChildren = false;
-                        comment.childrenCount = 0;
-                    }
+                if (comments && comments.length > 0) {
+                    $('.comments-list').html(
+                        comments.map(comment => createCommentHTML(comment)).join('')
+                    );
+                } else {
+                    $('.comments-list').html('<p>暫無留言</p>');
                 }
-
-                // 渲染留言列表
-                $('.comments-list').html(
-                    comments.map(comment => createCommentHTML(comment, 0)).join('')
-                );
             } catch (error) {
-                console.error('獲取留言失敗:', error);
+                console.error('獲取頂層留言失敗:', error);
                 $('.comments-list').html('<p>獲取留言失敗</p>');
             }
         }
 
-        // 創建留言HTML結構
-        function createCommentHTML(comment, level) {
-            const marginLeft = level * 20;
-            const commentId = comment.id || comment._id;
-            const commenterAccount = comment.commenterAccount ||
-                (comment.commenterId && comment.commenterId.account);
-
-            return `
-                <div class="comment-item" id="comment-${commentId}" style="margin-left: ${marginLeft}px">
-                    <div class="comment-header">
-                        <span>${commenterAccount}</span>
-                        <span>${dayjs(comment.editAt || comment.createdAt).format('YYYY-MM-DD HH:mm')}</span>
-                    </div>
-                    <div class="comment-content">
-                        ${comment.content}
-                    </div>
-                    <div class="comment-footer">
-                        ${comment.hasChildren ? `
-                            <button class="interaction-btn" onclick="toggleChildren('${commentId}')">
-                                <i class="fa-regular fa-comment-dots"></i>
-                                <span>${comment.childrenCount}</span>
-                            </button>
-                        ` : ''}
-                        ${level < 3 ? `
-                            <button onclick="checkLoginAndComment('comment', '${commentId}')">回覆</button>
-                        ` : ''}
-                    </div>
-                    <div class="nested-comments" id="children-${commentId}"></div>
-                </div>
-            `;
-        }
-
-        // 切換子留言顯示狀態
         async function toggleChildren(commentId) {
             const $childrenContainer = $(`#children-${commentId}`);
             const isLoaded = $childrenContainer.hasClass('active');
@@ -254,14 +217,11 @@
             } else {
                 try {
                     const response = await api.get(`/post/getChildrenComments/${commentId}`);
-                    const children = response.data.descendants;
+                    const children = response.data.children;
 
                     if (children?.length) {
-                        const parentLevel = parseInt($(`#comment-${commentId}`).css('margin-left')) / 20;
-                        const nextLevel = parentLevel + 1;
-
                         $childrenContainer.html(
-                            children.map(child => createCommentHTML(child, nextLevel)).join('')
+                            children.map(child => createCommentHTML(child)).join('')
                         );
                     }
 
@@ -273,7 +233,33 @@
             }
         }
 
-        // 檢查登入狀態
+        function createCommentHTML(comment) {
+            const hasChildren = comment.childrenId && comment.childrenId.length > 0;
+
+            return `
+        <div class="post-area" id="comment-${comment._id}" style="margin-left: 20px">
+            <div class="comment-header">
+                <span style="font-weight: bold; font-size: 1.2em;">${comment.commenterId.account}</span>
+                <span class="date">${dayjs(comment.editAt || comment.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+            </div>
+            <br>
+            <em>${comment.content}</em>
+            <br><br>
+            <div class="comment-footer">
+                ${hasChildren ? `
+                    <button class="interaction-btn" onclick="toggleChildren('${comment._id}')">
+                        <i class="fa-regular fa-comment-dots"></i>
+                        <span>${comment.childrenId.length}</span>
+                    </button>
+                ` : ''}
+                ${comment.level < 3 ? `
+                    <button onclick="checkLoginAndComment('comment', '${comment._id}')">回覆</button>
+                ` : ''}
+            </div>
+            <div class="nested-comments" id="children-${comment._id}"></div>
+        </div>
+    `;
+        }
         function checkLogin() {
             if (!isLoggedIn && confirm('請先登入')) {
                 window.location.href = './login.html';
@@ -285,11 +271,6 @@
         function checkLoginAndComment(type, id) {
             if (!checkLogin()) return;
 
-            const width = 500;
-            const height = 300;
-            const left = (window.innerWidth - width) / 2;
-            const top = (window.innerHeight - height) / 2;
-
             const url = type === 'post'
                 ? `addComment.html?postId=${id}&parentCommentId=0`
                 : `addComment.html?postId=${currentPostId}&parentCommentId=${id}`;
@@ -297,7 +278,7 @@
             window.open(
                 url,
                 'commentWindow',
-                `width=${width},height=${height},left=${left},top=${top}`
+                `width=500,height=300,left=(window.innerWidth - 500),top=(window.innerHeight - 300)`
             );
         }
 

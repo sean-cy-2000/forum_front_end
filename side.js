@@ -34,13 +34,10 @@ function createPost() {
         return;
     }
 
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-
     window.open(
         'addPost.html',
         'postWindow',
-        `width=600,height=500,left=${left},top=${top}`
+        `width=600,height=500,left=${(window.innerWidth - 600) / 2},top=${(window.innerHeight - 500) / 2}`
     );
 }
 

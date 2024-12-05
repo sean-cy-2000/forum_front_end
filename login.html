@@ -9,16 +9,14 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 
-<body>
-    <div class="login-container">
-        <input type="text" id="account" placeholder="帳號">
-        <input type="password" id="password" placeholder="密碼">
-        <div>
-            <button onclick="login()">登入</button>
-            <button onclick="register()">註冊</button>
-        </div>
+<body
+    style="width: 25vw; min-width: 300px; height: 100vh; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+    <input type="text" id="account" placeholder="帳號">
+    <input type="password" id="password" placeholder="密碼">
+    <div>
+        <button onclick="login()">登入</button>
+        <button onclick="register()">註冊</button>
     </div>
-
     <script>
         async function login() {
             try {
@@ -46,7 +44,7 @@
                 const response = await axios.post('http://localhost:3000/user/register', {
                     account, password
                 });
-                
+
                 alert(response.data.message);
             } catch (error) {
                 alert(error.response?.data?.message || '註冊失敗');

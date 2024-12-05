@@ -1,8 +1,11 @@
 /* 基礎變數設定 */
 :root {
-    --main-color: black;          /* 主要文字顏色 */
-    --secondary-color: lightgray;  /* 次要顏色，用於背景和邊框 */
-    --gap: 10px;                  /* 統一的間距 */
+    --main-color: black;
+    /* 主要文字顏色 */
+    --secondary-color: lightgray;
+    /* 次要顏色，用於背景和邊框 */
+    --gap: 10px;
+    /* 統一的間距 */
 }
 
 /* 重置和基礎設定 */
@@ -60,16 +63,6 @@ button:hover {
     opacity: 0.8;
 }
 
-/* 文章區域樣式 */
-.post-area {
-    width: 100%;
-    padding: var(--gap);
-    margin-bottom: var(--gap);
-    border: 1px solid var(--secondary-color);
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
 /* 互動按鈕樣式 */
 .interaction-btn {
     background: none;
@@ -79,6 +72,16 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+/* 文章區域樣式 */
+.post-area {
+    width: 100%;
+    padding: var(--gap);
+    margin-bottom: var(--gap);
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 /* 搜尋區域樣式 */
@@ -97,22 +100,14 @@ button:hover {
     margin-right: var(--gap);
     background-color: var(--secondary-color);
     border-radius: 4px;
+    font-size:xx-small;
+    color: gray;
 }
 
 /* 分頁控制區域 */
 .pagination {
     margin-top: var(--gap);
     text-align: center;
-}
-
-/* 登入容器樣式 */
-.login-container {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: var(--gap);
 }
 
 /* 留言系統樣式 */
@@ -125,15 +120,8 @@ button:hover {
     display: block;
 }
 
-/* 小螢幕裝置的響應式設計 */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--secondary-color);
-    }
+.date {
+    font-size: 10px;
+    color: gray;
+
 }
