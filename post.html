@@ -26,7 +26,16 @@
         <div class="main-content">
             <!-- 文章區塊：使用最簡化的結構 -->
             <div class="post-area">
-                <h1></h1>
+                <div style="display: flex; align-items: center;">
+                    <h1 id="postTitle"></h1>
+                    <button class="interaction-btn" id="editBtn" style="display: none;" onclick="window.open(
+                        `editPost.html?postId=${currentPostId}`,
+                        'editWindow',
+                        `width=500,height=300,left=${(window.innerWidth - 500) / 2},top=${(window.innerHeight - 300) / 2}`
+                    )">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                </div>
                 <div class="info">
                     <span class="author"></span>
                     <button class="interaction-btn" id="likeBtn">
@@ -74,7 +83,7 @@
             // 插入側邊欄並初始化頁面內容
             $('.container').prepend(createSidebar());
             isLoggedIn = await getUserInfo();
-            await initializePost();
+            await getPost();
             await getLevel_0_Comments();
 
             // 綁定交互按鈕事件
@@ -87,7 +96,7 @@
         });
 
         // 獲取文章內容
-        async function initializePost() {
+        async function getPost() {
             try {
                 currentPostId = new URLSearchParams(window.location.search).get('id');
                 if (!currentPostId) {
@@ -102,7 +111,7 @@
                 const { data: { post } } = await api.get(`/post/getPostInfo/${currentPostId}`, { headers });
 
                 // 更新頁面上的文章內容
-                updatePostContent(post);
+                renderPost(post);
             } catch (error) {
                 console.error('獲取文章失敗:', error);
                 alert('獲取文章失敗');
@@ -110,15 +119,17 @@
         }
 
         // 更新文章內容到頁面
-        function updatePostContent(post) {
+        function renderPost(post) {
             // 使用正確的選擇器 .post-area，並選擇第一個元素（文章區塊）
             const $post = $('.post-area').first();
-            $post.find('h1').text(post.title);
+            $post.find('#postTitle').text(post.title);
             $post.find('.author').text(`作者: ${post.postOwnerAccount}`);
             $post.find('.date').text(`發表時間: ${dayjs(post.createdAt).format('YYYY-MM-DD HH:mm')}`);
             $post.find('.content').text(post.content);
 
-            // 更新互動按鈕計數
+            // 判斷要不要顯示編輯按鈕
+            $('#editBtn').css('display', localStorage.getItem('account') === post.postOwnerAccount ? 'block' : 'none');
+
             $('#likeBtn span').text(post.likersCount);
             $('#collectBtn span').text(post.collectorsCount);
             $('#commentBtn span').text(post.commentsCount);
@@ -238,10 +249,19 @@
             const width = 100 - (comment.level * 20);
 
             return `
-        <div class="post-area" id="comment-${comment._id}" style="margin-left: 20px width: ${width}%">
-            <div class="comment-header">
+        <div class="post-area" id="comment-${comment._id}" style="margin-left: 20px; width: ${width}%">
+            <div class="comment-header" style="display: flex; align-items: center;">
                 <span style="font-weight: bold; font-size: 1.2em;">${comment.commenterId.account}</span>
                 <span class="date">${dayjs(comment.editAt || comment.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+                <button class="interaction-btn" 
+                    style="display: ${localStorage.getItem('account') === comment.commenterId.account ? 'block' : 'none'}"
+                    onclick="window.open(
+                        'editComment.html?commentId=${comment._id}',
+                        'editWindow',
+                        'width=500,height=300,left=${(window.innerWidth - 500) / 2},top=${(window.innerHeight - 300) / 2}'
+                    )">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
             </div>
             <br>
             <em>${comment.content}</em>
@@ -261,6 +281,8 @@
         </div>
     `;
         }
+
+
         function checkLogin() {
             if (!isLoggedIn && confirm('請先登入')) {
                 window.location.href = './login.html';
