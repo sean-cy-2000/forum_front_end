@@ -66,6 +66,7 @@ async function getUserInfo() {
 
 function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('account');
     window.location.reload();
 }
 

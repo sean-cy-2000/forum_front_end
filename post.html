@@ -86,7 +86,7 @@
             $('#addCommentBtn').click(() => checkLoginAndComment('post', currentPostId));
         });
 
-        // 初始化文章內容
+        // 獲取文章內容
         async function initializePost() {
             try {
                 currentPostId = new URLSearchParams(window.location.search).get('id');
@@ -235,9 +235,10 @@
 
         function createCommentHTML(comment) {
             const hasChildren = comment.childrenId && comment.childrenId.length > 0;
+            const width = 100 - (comment.level * 20);
 
             return `
-        <div class="post-area" id="comment-${comment._id}" style="margin-left: 20px">
+        <div class="post-area" id="comment-${comment._id}" style="margin-left: 20px width: ${width}%">
             <div class="comment-header">
                 <span style="font-weight: bold; font-size: 1.2em;">${comment.commenterId.account}</span>
                 <span class="date">${dayjs(comment.editAt || comment.createdAt).format('YYYY-MM-DD HH:mm')}</span>

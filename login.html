@@ -29,6 +29,7 @@
                 });
 
                 localStorage.setItem('token', response.data.token);
+                localStorage.setItem('account', response.data.account);
                 alert(response.data.message);
                 window.location.href = './index.html';
             } catch (error) {
