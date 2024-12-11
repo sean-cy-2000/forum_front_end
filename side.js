@@ -50,7 +50,7 @@ async function getUserInfo() {
     }
 
     try {
-        const response = await axios.get('http://54.248.159.242:3000/user/getUserInfo', {
+        const response = await axios.get('https://20992077.xyz/user/getUserInfo', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         document.getElementById('userAccount').textContent = response.data.data.account;

@@ -20,7 +20,7 @@
         async function initializeEdit() {
             try {
                 const response = await axios.get(
-                    `http://54.248.159.242:3000/post/getCommentInfo/${commentId}`, 
+                    `https://20992077.xyz/post/getCommentInfo/${commentId}`, 
                     { headers: { 'Content-Type': 'application/json' } }
                 );
                 document.getElementById('content').value = response.data.comment.content;
@@ -39,7 +39,7 @@
                 }
 
                 const response = await axios.put(
-                    `http://54.248.159.242:3000/post/editComment/${commentId}`,
+                    `https://20992077.xyz/post/editComment/${commentId}`,
                     { content },
                     {
                         headers: {

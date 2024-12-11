@@ -22,7 +22,7 @@
 
         async function initializeEdit() {
             try {
-                const response = await axios.get(`http://54.248.159.242:3000/post/getPostInfo/${postId}`, {
+                const response = await axios.get(`https://20992077.xyz/post/getPostInfo/${postId}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 const post = response.data.post;
@@ -50,7 +50,7 @@
                 }
 
                 const response = await axios.put(
-                    `http://54.248.159.242:3000/post/editPost/${postId}`,
+                    `https://20992077.xyz/post/editPost/${postId}`,
                     { title, content, tags },
                     {
                         headers: {
