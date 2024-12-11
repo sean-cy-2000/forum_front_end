@@ -7,6 +7,7 @@
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="./style.css">
+    <script src="./url.js"></script>
 </head>
 
 <body
@@ -17,13 +18,14 @@
         <button onclick="login()">登入</button>
         <button onclick="register()">註冊</button>
     </div>
+    
     <script>
         async function login() {
             try {
                 const account = document.getElementById('account').value;
                 const password = document.getElementById('password').value;
 
-                const response = await axios.post('http://54.248.159.242:3000/user/login', {
+                const response = await axios.post(`https://20992077.xyz/user/login`, {
                     account,
                     password
                 });
@@ -33,7 +35,7 @@
                 alert(response.data.message);
                 window.location.href = './index.html';
             } catch (error) {
-                alert(error.response?.data?.message || '登入失敗');
+                alert(error.response?.data?.message || `登入失敗 ${error}`);
             }
         }
 
@@ -42,7 +44,7 @@
                 const account = document.getElementById('account').value;
                 const password = document.getElementById('password').value;
 
-                const response = await axios.post('http://54.248.159.242:3000/user/register', {
+                const response = await axios.post(`${api_url}/user/register`, {
                     account, password
                 });
 
