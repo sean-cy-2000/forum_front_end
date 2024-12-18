@@ -71,10 +71,10 @@
 
         async function getTotalPages() {
             try {
-                const tag = document.getElementById('tagInput').value;
-                const postsCount = await api.get(`/post/getPostsCount/${tag || ''}`);
+                const keyword = document.getElementById('keywordInput').value.trim();
+                const postsCount = await api.get(`/post/getPostsCount/${keyword || ''}`);
                 const pageSize = parseInt(document.getElementById('pageSize').value);
-                totalPages = Math.ceil(postsCount.data.count / pageSize);   // 無條件進位
+                const totalPages = Math.ceil(postsCount.data.count / pageSize);
                 document.getElementById('totalPageSpan').textContent = totalPages;
                 document.getElementById('currentPageSpan').textContent = currentPage;
             } catch (error) {
@@ -91,7 +91,7 @@
                 const keyword = document.getElementById('keywordInput').value.trim();
 
                 const response = await api.get(`/post/getPosts/${sortBy}/${pageSize}/${currentPage}/${direction}/${keyword || ''}`);
-                
+
                 if (response.data.posts && response.data.posts.length > 0) {
                     postArea.innerHTML = '';
                     response.data.posts.forEach(post => {
