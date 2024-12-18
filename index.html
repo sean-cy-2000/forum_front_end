@@ -17,7 +17,7 @@
         <div class="main-content">
             <div class="search-container">
                 <input type="text" class="input-control" id="keywordInput" placeholder="搜索關鍵字">
-                <input type="text" class="input-control" id="tagInput" placeholder="搜索標籤">
+                <!-- <input type="text" class="input-control" id="tagInput" placeholder="搜索標籤"> -->
                 <select id="direction">
                     <option value="-1">正序</option>
                     <option value="1">反序</option>
@@ -86,12 +86,12 @@
             try {
                 const sortBy = document.getElementById('sortBy').value;
                 const direction = parseInt(document.getElementById('direction').value);  // 排序方向 -1 或 1
-                const tag = document.getElementById('tagInput').value;
                 const pageSize = parseInt(document.getElementById('pageSize').value);
                 const postArea = document.getElementById('postArea');
+                const keyword = document.getElementById('keywordInput').value.trim();
 
-                const response = await api.get(`/post/getPosts/${sortBy}/${pageSize}/${currentPage}/${direction}/${tag || ''}`);
-
+                const response = await api.get(`/post/getPosts/${sortBy}/${pageSize}/${currentPage}/${direction}/${keyword || ''}`);
+                
                 if (response.data.posts && response.data.posts.length > 0) {
                     postArea.innerHTML = '';
                     response.data.posts.forEach(post => {
